@@ -25,9 +25,7 @@ export default function Navbar() {
 		);
 	} else {
 		return (
-			<div className="flex justify-between items-center p-4 bg-gray-100">
-				<div className="text-2xl font-bold">Uber</div>
-			</div>
+			<div className="bg-black text-white text-3xl py-2 px-10">Uber</div>
 		);
 	}
 }

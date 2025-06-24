@@ -75,27 +75,28 @@ export default function EditProfilePage() {
 		}
 	}
 
-	async function fetchDeleteUser() {
-		try {
-			const role = getRoleBasedOnToken();
-			if (!userId) {
-				console.error("No user ID available for deletion");
-				return;
-			}
-			if (role === "ROLE_DRIVER") {
-				await deleteDriver(userId);
-			} else if (role === "ROLE_PASSENGER") {
-				await deletePassenger(userId);
-			} else {
-				console.error("Error: No valid role");
-				return;
-			}
-			localStorage.removeItem("token");
-			navigate("/auth/login");
-		} catch (error) {
-			console.error("Error deleting user:", error);
-		}
-	}
+		async function fetchDeleteUser() {
+        try {
+            const role = getRoleBasedOnToken();
+            if (!userId) {
+                console.error("No user ID available for deletion");
+                return;
+            }
+            if (role === "ROLE_DRIVER") {
+                await deleteDriver(userId);
+            } else if (role === "ROLE_PASSENGER") {
+                await deletePassenger(userId);
+            } else {
+                console.error("Error: No valid role");
+                return;
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+        } finally {
+            localStorage.removeItem("token");
+            navigate("/auth/login");
+        }
+    }
 
 	function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();

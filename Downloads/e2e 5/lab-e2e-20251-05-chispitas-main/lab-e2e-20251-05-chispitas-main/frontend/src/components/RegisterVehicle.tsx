@@ -2,6 +2,7 @@ import { VehicleResponse } from "@interfaces/vehicle/VehicleResponse";
 import { RegisterRequest } from "@interfaces/auth/RegisterRequest";
 import { register } from "@services/auth/register";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { useAuthContext } from "@contexts/AuthContext"; // Asegúrate de que esta ruta sea correcta
 
 interface RegisterVehicleProps {
 	userData: Omit<RegisterRequest, "category" | "vehicle">;
@@ -13,19 +14,24 @@ export default function RegisterVehicle({ userData, onSuccess }: RegisterVehicle
 		brand: "",
 		model: "",
 		licensePlate: "",
-		fabricationYear: new Date().getFullYear(),
-		capacity: 4,
+		fabricationYear: null,
+		capacity: null,
 	});
 
 	const [category, setCategory] = useState<"X" | "XL" | "BLACK">("X");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string>("");
+	const { login } = useAuthContext(); // Usa el contexto
 
 	function handleChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
 		const { name, value } = e.target;
 		setVehicleData((prev) => ({
 		...prev,
-		[name]: name === "fabricationYear" || name === "capacity" ? parseInt(value) : value,
+		[name]:
+		(name === "fabricationYear" || name === "capacity")
+                ? value === "" ? null : parseInt(value)
+                : value,
+		
 		}));
 	}
 
@@ -40,9 +46,9 @@ export default function RegisterVehicle({ userData, onSuccess }: RegisterVehicle
 			category,
 			vehicle: vehicleData,
 		};
-
-		await register(fullRequest);
-		onSuccess?.();
+		await register(fullRequest); // Primero registra el usuario y el vehículo
+		await login({ email: userData.email, password: userData.password }); // Luego haz login
+		onSuccess?.(); // Navega al dashboard
 		} catch (err) {
 		setError(err instanceof Error ? err.message : "Error al registrar usuario y vehículo");
 		} finally {
@@ -111,10 +117,8 @@ export default function RegisterVehicle({ userData, onSuccess }: RegisterVehicle
 				type="number"
 				name="fabricationYear"
 				id="fabricationYear"
-				value={vehicleData.fabricationYear}
+				value={vehicleData.fabricationYear ?? ""}
 				onChange={handleChange}
-				min="1900"
-				max={new Date().getFullYear() + 1}
 				required
 			/>
 			</div>
@@ -125,10 +129,8 @@ export default function RegisterVehicle({ userData, onSuccess }: RegisterVehicle
 				type="number"
 				name="capacity"
 				id="capacity"
-				value={vehicleData.capacity}
+				value={vehicleData.capacity ?? ""}
 				onChange={handleChange}
-				min="1"
-				max="10"
 				required
 			/>
 			</div>

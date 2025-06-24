@@ -6,21 +6,21 @@ import RideItem from "./RideItem";
 export default function RidesHistorial() {
 	const [rides, setRides] = useState<RideByUserResponse[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string>('');
-
-	async function fetchRides() {
-		try {
-			setLoading(true);
-			const ridesData = await getRidesByUser({ page: 0, size: 10 });
-			setRides(ridesData.content || []);
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to fetch rides');
-		} finally {
-			setLoading(false);
-		}
-	}
+	const [error, setError] = useState<string>("");
 
 	useEffect(() => {
+		async function fetchRides() {
+			try {
+				setLoading(true);
+				const ridesData = await getRidesByUser({ page: 0, size: 10 });
+				setRides(ridesData.content || []);
+			} catch (err) {
+				setError(err instanceof Error ? err.message : "Failed to fetch rides");
+			} finally {
+				setLoading(false);
+			}
+		}
+
 		fetchRides();
 	}, []);
 
@@ -32,17 +32,22 @@ export default function RidesHistorial() {
 		return <div style={{ color: "red" }}>{error}</div>;
 	}
 
+	const sortedRides = [...rides].sort(
+		(a, b) => new Date(b.departureDate).getTime() - new Date(a.departureDate).getTime()
+	);
+
 	return (
 		<article className="home-section">
 			<h1 className="title mb-3">Historial de viajes</h1>
 			<section id="ridesHistorial">
-				{rides.length === 0 ? (
+				{sortedRides.length === 0 ? (
 					<p>No hay viajes en el historial</p>
 				) : (
-					rides.map((ride) => (
+					sortedRides.map((ride, index) => (
 						<RideItem
-							key={ride.id}
-							ride={ride}
+							key={index}
+							id={(index + 1).toString()}
+							data={ride}
 						/>
 					))
 				)}

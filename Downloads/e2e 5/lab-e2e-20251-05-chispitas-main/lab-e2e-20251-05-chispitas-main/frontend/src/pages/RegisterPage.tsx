@@ -6,37 +6,46 @@ import img6 from "../assets/Img6.png";
 import { useNavigate } from "react-router-dom";
 import { RegisterRequest } from "@interfaces/auth/RegisterRequest";
 import { register } from "@services/auth/register";
+import { useAuthContext } from "@contexts/AuthContext"; // o tu ruta real
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState<Omit<RegisterRequest, "category" | "vehicle"> | null>(null);
   const [isRegisteringPassenger, setIsRegisteringPassenger] = useState(false);
   const [error, setError] = useState("");
+  const { login } = useAuthContext();
 
   async function handlePassengerRegister(data: Omit<RegisterRequest, "category" | "vehicle">) {
     try {
-      setIsRegisteringPassenger(true);
-      setError("");
+    setIsRegisteringPassenger(true);
+    setError("");
 
-      // Construye solo los campos necesarios
-      const request: Partial<RegisterRequest> = {
-        ...data,
-        isDriver: false,
-      };
+    const request: Partial<RegisterRequest> = {
+      ...data,
+      isDriver: false,
+    };
+    delete request.category;
+    delete request.vehicle;
 
-      // Elimina campos innecesarios para pasajeros
-      delete request.category;
-      delete request.vehicle;
+    console.log("Registrando pasajero con:", request);
 
-      console.log("Registrando pasajero con:", request);
+    await register(request as RegisterRequest);
+    console.log("Registro exitoso, intentando login...");
 
-      await register(request as RegisterRequest);
+    // Intenta login automático y captura errores
+    try {
+      await login({ email: data.email, password: data.password });
+      console.log("Login automático exitoso, navegando a dashboard");
       navigate("/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al registrar pasajero");
-    } finally {
-      setIsRegisteringPassenger(false);
+    } catch (loginError) {
+      console.error("Login automático falló:", loginError);
+      setError("El registro fue exitoso, pero el login automático falló. Intenta iniciar sesión manualmente.");
     }
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Error al registrar pasajero");
+  } finally {
+    setIsRegisteringPassenger(false);
+  }
   }
 
   return (
