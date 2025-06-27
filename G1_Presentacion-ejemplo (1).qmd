@@ -14,14 +14,6 @@ format:
     embed-resources: true
 ---
 
-## Antecedentes
-
-**Relevancia:**La conectividad a internet es esencial para el desempeño académico, ya que permite el acceso eficiente a plataformas educativas. Evaluar la red en UTEC durante el ciclo 2025-I ayuda a identificar zonas críticas, optimizar recursos y mejorar la experiencia educativa.
-
-**Contexto:**En el contexto académico actual, donde la conectividad influye directamente en el rendimiento estudiantil, resulta clave analizar cómo factores como la velocidad y latencia afectan el acceso a contenidos. Esta evaluación permite comprender los retos tecnológicos que enfrentan las instituciones educativas en un entorno cada vez más digital.
-
-**Justificación:**Este estudio permite vincular el análisis técnico de la red con el impacto en el desempeño académico, identificando oportunidades de mejora en infraestructura y toma de decisiones. A través de un enfoque integral, se busca contribuir al desarrollo institucional mediante estrategias basadas en datos reales y situaciones concretas.
-
 ## Objetivos
 
 Identificar los factores que influyen en la conexión a internet en diferentes ambientes de la UTEC en el periodo académico 2025-I
@@ -30,12 +22,6 @@ Identificar los factores que influyen en la conexión a internet en diferentes a
 
 1.  Analizar la relación entre el piso en el que se ubica el ambiente y los indicadores de conectividad (velocidad de subida, velocidad de bajada y latencia) de la red de UTEC, durante el periodo 2025-1.
 2.  Analizar la relación entre la temperatura y el dispositivo con la velocidad de subida, velocidad de bajada y latencia de la red de UTEC, durante el periodo 2025-1.
-
-## Datos y Limpieza de Datos
-
--   Para evaluar la calidad del internet en UTEC durante el ciclo 2025-I, se empleará un muestreo no probabilístico intencional. El equipo medirá la velocidad de subida, bajada y latencia con nPerf, en distintos horarios y ambientes del campus (aulas, laboratorios, biblioteca, etc.).
--   Limpieza de datos con sum(is.na()) y na.omit().
--   Variables renombradas para mayor comprensión.
 
 ## Variables {.small}
 
@@ -156,19 +142,31 @@ cat("La correlación entre las variables es: ", corval)
 
 **Probabilidad de estar en el Piso 2 (Evento A):**
 
--    **P(A) = 21.62%** – Esto indica que aproximadamente 1 de cada 5 registros se encuentra en el segundo piso, lo cual puede tener implicancias sobre la intensidad de señal o la infraestructura distribuida por niveles.
+-   **P(A) = 21.62%** – Esto indica que aproximadamente 1 de cada 5 registros se encuentra en el segundo piso, lo cual puede tener implicancias sobre la intensidad de señal o la infraestructura distribuida por niveles.
 
 **Probabilidad de tener Latencia Baja (Evento B):**
 
--    **P(B) = 43.24%** – Muestra que casi la mitad de los casos presentan baja latencia, sugiriendo que las condiciones de red pueden ser óptimas en ciertos puntos del campus.
+-   **P(B) = 43.24%** – Muestra que casi la mitad de los casos presentan baja latencia, sugiriendo que las condiciones de red pueden ser óptimas en ciertos puntos del campus.
 
 **Probabilidad conjunta de Piso 10 y Velocidad Rápida (Evento C):**
 
--    **P(C) = 13.51%** – Representa una baja proporción de casos donde se combinan condiciones de altura (piso 10) y buen rendimiento (velocidad de bajada rápida), lo que podría señalar oportunidades de mejora en zonas elevadas.
+-   **P(C) = 13.51%** – Representa una baja proporción de casos donde se combinan condiciones de altura (piso 10) y buen rendimiento (velocidad de bajada rápida), lo que podría señalar oportunidades de mejora en zonas elevadas.
 
 **Probabilidad de ser un Celular en Piso 2 (Evento D):**
 
--    **P(D) = 13.51%** – Sugiere que una cantidad similar de registros corresponde a dispositivos móviles en el segundo piso, lo cual puede ser relevante al analizar comportamiento del usuario y calidad de conexión en esa área específica.
+-   **P(D) = 13.51%** – Sugiere que una cantidad similar de registros corresponde a dispositivos móviles en el segundo piso, lo cual puede ser relevante al analizar comportamiento del usuario y calidad de conexión en esa área específica.
+
+## Datos y Limpieza de Datos
+
+-   Para evaluar la calidad del internet en UTEC durante el ciclo 2025-I, se empleará un muestreo no probabilístico intencional. El equipo medirá la velocidad de subida, bajada y latencia con nPerf, en distintos horarios y ambientes del campus (aulas, laboratorios, biblioteca, etc.).
+-   Limpieza de datos con sum(is.na()) y na.omit().
+-   Variables renombradas para mayor comprensión.
+
+#### Descriptores:
+(Univariadas y bivariadas)
+
+## Probabilidad Empíricas: {.small}
+
 
 ## Probabilidad Condicional: {.small}
 
@@ -221,7 +219,9 @@ ggplot(DF3, aes(x = factor(A, levels=c(FALSE,TRUE)),
 :::
 ::::
 
-## Variables Aleatorias Discretas {.small}
+## Modelos de variables discretas y continuas
+
+#### Variables Aleatorias Discretas {.small}
 
 ***Distribución Binomial***
 
@@ -237,7 +237,7 @@ barplot(probabilidades1, names.arg = valores_x1,
         xlab = "Número de mediciones", ylab = "P(X = x)", col = "skyblue")
 ```
 
-## Variables Aleatorias Continuas {.small}
+#### Variables Aleatorias Continuas {.small}
 
 :::::::::::: columns
 :::::: {.column width="50%"}
@@ -256,41 +256,38 @@ denscomp(list(fit.norm, fit.exp, fit.lnorm), legendtext = plot.legend)
 
 ::::: columns
 ::: {.column width="45%"}
-
-```{}
+```         
 ```
 :::
 
 ::: {.column width="45%"}
-```{}
+```         
 ```
 :::
 :::::
 ::::::
 
 ::::::: {.column width="50%"}
-```{}
+```         
 ```
 
 :::::: columns
 ::: {.column width="30%"}
-
-```{}
+```         
 ```
 :::
 
 ::: {.column width="30%"}
-
-```{}
+```         
 ```
 :::
 
 ::: {.column width="30%"}
-```{}
+```         
 ```
 :::
 ::::::
 :::::::
 ::::::::::::
 
-## Cierre
+## Conclusiones
