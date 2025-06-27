@@ -1,0 +1,296 @@
+---
+title: "G1_Presentación"
+author: "Líder: Lucia Jimena Cartagena Miranda; Miembros: Julio Eduardo Quispe Casaverde, Ivan Alonso Rodriguez Perez, Giancarlo Kaqui Valenzuela, Styven Ronaldo Vera Flores"
+format: 
+  revealjs: 
+    theme: beige
+    transition: slide
+    slideNumber: true
+    controls: true
+    progress: true
+    center: true
+    width: 1600
+    height: 900
+    embed-resources: true
+---
+
+## Antecedentes
+
+**Relevancia:**La conectividad a internet es esencial para el desempeño académico, ya que permite el acceso eficiente a plataformas educativas. Evaluar la red en UTEC durante el ciclo 2025-I ayuda a identificar zonas críticas, optimizar recursos y mejorar la experiencia educativa.
+
+**Contexto:**En el contexto académico actual, donde la conectividad influye directamente en el rendimiento estudiantil, resulta clave analizar cómo factores como la velocidad y latencia afectan el acceso a contenidos. Esta evaluación permite comprender los retos tecnológicos que enfrentan las instituciones educativas en un entorno cada vez más digital.
+
+**Justificación:**Este estudio permite vincular el análisis técnico de la red con el impacto en el desempeño académico, identificando oportunidades de mejora en infraestructura y toma de decisiones. A través de un enfoque integral, se busca contribuir al desarrollo institucional mediante estrategias basadas en datos reales y situaciones concretas.
+
+## Objetivos
+
+Identificar los factores que influyen en la conexión a internet en diferentes ambientes de la UTEC en el periodo académico 2025-I
+
+#### Objetivos Específicos:
+
+1.  Analizar la relación entre el piso en el que se ubica el ambiente y los indicadores de conectividad (velocidad de subida, velocidad de bajada y latencia) de la red de UTEC, durante el periodo 2025-1.
+2.  Analizar la relación entre la temperatura y el dispositivo con la velocidad de subida, velocidad de bajada y latencia de la red de UTEC, durante el periodo 2025-1.
+
+## Datos y Limpieza de Datos
+
+-   Para evaluar la calidad del internet en UTEC durante el ciclo 2025-I, se empleará un muestreo no probabilístico intencional. El equipo medirá la velocidad de subida, bajada y latencia con nPerf, en distintos horarios y ambientes del campus (aulas, laboratorios, biblioteca, etc.).
+-   Limpieza de datos con sum(is.na()) y na.omit().
+-   Variables renombradas para mayor comprensión.
+
+## Variables {.small}
+
+```{r,echo=FALSE}
+#install.packages("fitdistrplus")
+#install.packages("rriskDistributions")
+#install.packages("readxl")
+library(fitdistrplus)
+library(rriskDistributions)
+library(readxl)
+library(dplyr) 
+library(tidyverse) 
+library(ggplot2)
+setwd("C:/Users/gianc/Downloads")
+DF1 <- read_csv("formfinal (1).csv", show_col_types = FALSE)
+DF1 <- subset(DF1, select = -c(
+  `Marca temporal`,
+  `Integrante...3`, `Integrante...4`, `Integrante...5`, `Integrante...6`,
+  `Integrante...6`, `Integrante...7`, `Integrante...8`, `Integrante...9`, `Integrante...10`,`Integrante...11`,
+  `Coordenada UTM: Este (E)`,`Coordenada UTM: Norte (N)`, `Área en m²`, `Número de Repetidores`, 
+  `Número de puntos de conexión`
+))
+names(DF1)[names(DF1) == "Grupo\nIndica a qué grupo perteneces"] <- "Grupo"
+names(DF1)[names(DF1) == "Latencia (Ping, ms)"] <- "Latencia"
+names(DF1)[names(DF1) == "Velocidad de subida (Mbps)"] <- "VSubida" #VSubida es la abreviación de Velocidad de subida.
+names(DF1)[names(DF1) == "Velocidad de bajada (Mbps)"] <- "VBajada" #VBajada es la abreviación de Velocidad de bajada. (media).
+names(DF1)[names(DF1) == "Torre (Torre principal o Torre de 6 pisos)"] <- "Torre"
+names(DF1)[names(DF1) == "Material circundante Predominante"] <- "Material Predominante"
+DF3 <- na.omit(DF1)
+DF3$Día <- factor(DF3$Día,levels = c("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"), ordered = TRUE)
+
+DF3$Turno <- factor(DF3$Turno,levels = c("Mañana Temprano (6:00 a.m. a 9:00 a.m.)", "Mañana Pico (9:00 a.m. a 12:00 p.m)", "Tarde temprano (12:00 p.m. a 3:00 p.m)", "Tarde pico (3:00 p.m. a 6:00 p.m)", "Noche (6:00 p.m. a 9:00 p.m)", "Noche tarde (9:00 p.m. a 11:00 p.m)"), ordered = TRUE)
+
+DF3$Torre <- factor(DF3$Torre)
+
+DF3$Piso <- factor(DF3$Piso,levels = c(-2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), ordered = TRUE)
+
+DF3$Espacio <- factor(DF3$Espacio)
+
+DF3$`Tipo de Área` <- factor(DF3$`Tipo de Área`)
+
+DF3$Aforo <- as.integer(DF3$Aforo)
+
+DF3$Dispositivo <- factor(DF3$Dispositivo)
+
+DF3$`Tipo de Conexión` <- factor(DF3$`Tipo de Conexión`)
+
+DF3$Red <- factor(DF3$Red)
+
+DF3$`Material Predominante` <- factor(DF3$`Material Predominante`)
+
+DF3$Temperatura <- as.numeric(DF3$Temperatura)
+
+DF3$Latencia <- as.numeric(DF3$Latencia)
+
+DF3$VSubida <- as.numeric(DF3$VSubida)
+
+DF3$VBajada <- as.numeric(DF3$VBajada)
+```
+
+```{=html}
+<style>
+table {
+    font-size: 20px;
+}
+</style>
+```
+
+|   | Variable | Tipo de Variable | Restricciones |
+|------------------|------------------|------------------|------------------|
+| Día de la semana en que se recogió la observación. | Día | Categórica Ordinal | Los datos solo se tomarán en los días que la universidad esté abierta (Lunes-Sábados). |
+| Turno del día en que se tomó la medición. | Turno | Categórica Ordinal | Se dividirá en 6 turnos a lo largo del horario que UTEC está abierto. |
+| Torre del edificio donde se ubicó el punto de medición. | Torre | Categórica Nominal | Solo existen 2 torres: Torre principal y Torre secundaria). |
+| Piso del edificio donde se tomó la medición. | Piso | Categórica Ordinal | Los pisos en utec van desde (-2 hasta 11). |
+| Tipo de espacio físico. | Espacio | Categórica Nominal | Entran valores como aula, laboratorio, auditorio, etc. |
+| Clasificación del área según su uso. | Tipo de Área | Categórica Nominal | Entran valores como áreas comunes, áreas académicas, etc. |
+| Número total de personas que puede ocupar el espacio. | Aforo | Cuantitativa Discreta | El aforo tiene que ser un valore entero y mayor que 0. |
+| Dispositivo utilizado para la medición (celular, laptop, etc.). | Dispositivo | Categórica Nominal | Entran valores como celular, laptop, tablet y computador. |
+| Tipo de conexión de red empleada. | Tipo de Conexión | Categórica Nominal | Solo existen 2 tipos: Wi-Fi y Álambrica. |
+| Red usada para la toma de datos( UTEC Comunidad o UTEC Alumnos). | Red | Categórica Nominal | Solo existen 2 tipos: UTEC Comunidad y UTEC Alumnos. |
+| Material principal del entorno. | Material Predominante | Categórica Nominal | Entran valores como concreto, vidrio, drywall, madera y vegetación. |
+| Temperatura del ambiente registrada en grados Celsius. | Temperatura | Cuantitativa Continua | La temperatura debe estar entre 10 a 32 grados debido al periodo que nos encontramos. |
+| Tiempo de respuesta en milisegundos al enviar una señal. | Latencia | Cuantitativa Continua | La latencia tiene que ser mayor que 0 |
+| Velocidad de carga de datos en megabits por segundo. (media). | Velocidad de Subida | Cuantitativa Continua | La velocidad de subida tiene que ser mayor que 0 y menor que 500 debido a la calidad de internet que ofrece UTEC |
+| Velocidad de descarga de datos en megabits por segundo. (media). | Velocidad de Bajada | Cuantitativa Continua | La velocidad de bajada tiene que ser mayor que 0 y menor que 500 debido a la calidad de internet que ofrece UTEC |
+
+:::: columns
+ANALISIS DESCRIPTIVO
+
+::: {.column width="45%"}
+#### Cualitativa vs Cualitativa
+
+```{r,echo=FALSE}
+cor_val <- cor(DF3$VSubida, DF3$VBajada, use = "complete.obs")
+ggplot(DF3, aes(x = VSubida, y = VBajada)) +
+  geom_point(alpha = 0.6, color = "steelblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  annotate("text", 
+           x = max(DF3$VSubida, na.rm = TRUE) * 0.65, 
+           y = max(DF3$VBajada, na.rm = TRUE) * 0.95, 
+           label = r_text,
+           size = 5, fontface = "bold") +
+  annotate("text", 
+           x = max(DF3$VSubida, na.rm = TRUE) * 0.65, 
+           y = max(DF3$VBajada, na.rm = TRUE) * 0.87, 
+           label = eq_text,
+           size = 5, fontface = "italic") +
+  labs(title = "Velocidad de Subida vs Velocidad de Bajada",
+       x = "Velocidad de Subida (Mbps)",
+       y = "Velocidad de Bajada (Mbps)") +
+  theme_minimal()
+cat("La correlación entre las variables es: ", corval)
+```
+:::
+::::
+
+**PROBABILIDAD EMPIRICA**
+
+**Probabilidad de estar en el Piso 2 (Evento A):**
+
+-    **P(A) = 21.62%** – Esto indica que aproximadamente 1 de cada 5 registros se encuentra en el segundo piso, lo cual puede tener implicancias sobre la intensidad de señal o la infraestructura distribuida por niveles.
+
+**Probabilidad de tener Latencia Baja (Evento B):**
+
+-    **P(B) = 43.24%** – Muestra que casi la mitad de los casos presentan baja latencia, sugiriendo que las condiciones de red pueden ser óptimas en ciertos puntos del campus.
+
+**Probabilidad conjunta de Piso 10 y Velocidad Rápida (Evento C):**
+
+-    **P(C) = 13.51%** – Representa una baja proporción de casos donde se combinan condiciones de altura (piso 10) y buen rendimiento (velocidad de bajada rápida), lo que podría señalar oportunidades de mejora en zonas elevadas.
+
+**Probabilidad de ser un Celular en Piso 2 (Evento D):**
+
+-    **P(D) = 13.51%** – Sugiere que una cantidad similar de registros corresponde a dispositivos móviles en el segundo piso, lo cual puede ser relevante al analizar comportamiento del usuario y calidad de conexión en esa área específica.
+
+## Probabilidad Condicional: {.small}
+
+-   Evento 1 (A): Seleccionar una persona al azar que se encuentre en el piso 2.
+
+-   Evento 2 (B): Seleccionar una persona al azar que tenga un nivel de latencia Baja.
+
+```{r}
+DF3 <- DF3 %>% mutate(
+  A = Piso == 2,
+  B = rango_latencia == "Baja",
+)
+n_total <- nrow(DF3)
+
+n_A  <- sum(DF3$A);  n_B  <- sum(DF3$B)
+n_AyB <- sum(DF3$A & DF3$B)
+
+P_A <- n_A / n_total;     P_B <- n_B / n_total
+P_AyB <- n_AyB / n_total;
+
+P_A_given_B <- P_AyB/P_B
+P_B_given_A <- P_A_given_B * P_B/P_A
+
+chi_AB <- chisq.test(table(DF3$A, DF3$B), correct = FALSE)
+
+eps <- 0.01
+indep_AB <- ifelse(abs(P_AyB - P_A * P_B) < eps, "Independientes", "Dependientes")
+
+res_AB <- tibble(
+  Métrica = c("P(A)","P(B)","P(A ∩ B)","P(A | B)","P(B | A)",
+              "P(A)*P(B)","p-value χ²","Conclusión"),
+  Valor = c(round(P_A,2), round(P_B,2), round(P_AyB,2),
+            round(P_A_given_B,2), round(P_B_given_A,2),
+            round(P_A * P_B,2), signif(chi_AB$p.value,2), indep_AB)
+)
+print(res_AB)
+
+ggplot(DF3, aes(x = factor(A, levels=c(FALSE,TRUE)),
+                fill = factor(B, levels=c(FALSE,TRUE)))) +
+  geom_bar(position = "fill") +
+  scale_x_discrete(labels = c("No Piso 2","Piso 2")) +
+  scale_fill_discrete(name = "Latencia Baja", labels = c("No","Sí")) +
+  labs(title = "Relación entre Eventos A y B",
+       x = "Evento A", y = "Proporción") +
+  theme_minimal()
+```
+
+:::: columns
+::: {.column width="55%"}
+:::
+::::
+
+## Variables Aleatorias Discretas {.small}
+
+***Distribución Binomial***
+
+Se desea calcular la probabilidad de que, en un nuevo estudio, exactamente 200 de las mediciones se hayan realizado en el piso 2.
+
+```{r}
+n <- nrow(DF3)
+p1 <- mean(DF3$Piso == 2)
+valores_x1 <- 0:n
+probabilidades1 <- dbinom(valores_x1, n, p1)
+barplot(probabilidades1, names.arg = valores_x1,
+        main = "Distribución Binomial: Mediciones en Piso 2",
+        xlab = "Número de mediciones", ylab = "P(X = x)", col = "skyblue")
+```
+
+## Variables Aleatorias Continuas {.small}
+
+:::::::::::: columns
+:::::: {.column width="50%"}
+Se desea estimar la probabilidad de que una medición de velocidad de bajada se encuentre entre 20 Mbps y 30 Mbps, en base a las mediciones realizadas por estudiantes.
+
+```{r}
+library(fitdistrplus)
+fit.norm <- fitdist(DF3$VBajada, "norm")
+fit.exp  <- fitdist(DF3$VBajada, "exp")
+fit.lnorm <- fitdist(DF3$VBajada, "lnorm")
+
+# Comparar con gráficos
+plot.legend <- c("Normal", "Exponencial", "Log-Normal")
+denscomp(list(fit.norm, fit.exp, fit.lnorm), legendtext = plot.legend)
+```
+
+::::: columns
+::: {.column width="45%"}
+
+```{}
+```
+:::
+
+::: {.column width="45%"}
+```{}
+```
+:::
+:::::
+::::::
+
+::::::: {.column width="50%"}
+```{}
+```
+
+:::::: columns
+::: {.column width="30%"}
+
+```{}
+```
+:::
+
+::: {.column width="30%"}
+
+```{}
+```
+:::
+
+::: {.column width="30%"}
+```{}
+```
+:::
+::::::
+:::::::
+::::::::::::
+
+## Cierre
